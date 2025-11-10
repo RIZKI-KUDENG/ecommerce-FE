@@ -39,7 +39,7 @@ export default function Login() {
     }
   };
   return (
-    <div className="flex justify-evenly items-center h-screen">
+    <div className="flex justify-evenly items-center my-8 py-4">
       <div>
         <Image
           src="/logo.jpg"
@@ -49,7 +49,7 @@ export default function Login() {
           className="w-96 h-96"
         ></Image>
       </div>
-      <form action="" className=" p-3" onSubmit={handleSubmit}>
+      <form action="" className="p-3" onSubmit={handleSubmit}>
         <FieldSet>
           <h1 className="text-3xl font-bold">Log in to Exclusive</h1>
           <FieldDescription className="text-md">

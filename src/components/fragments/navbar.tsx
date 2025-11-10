@@ -25,13 +25,13 @@ export default function Navbar({ pathname }: { pathname: string }) {
             <li>
               <Link href="/#">About</Link>
             </li>
-            {pathname === "/login" ? (
+            {pathname === "/register" ? (
               <li>
-                <Link href="/register">Sign Up</Link>
+                <Link href="/login">Sign In</Link>
               </li>
             ) : (
               <li>
-                <Link href="/login">Sign In</Link>
+                <Link href="/register">Sign Up</Link>
               </li>
             )}
           </ul>

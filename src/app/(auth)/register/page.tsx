@@ -57,7 +57,7 @@ export default function Register() {
     });
   };
   return (
-    <div className="flex justify-evenly items-center h-screen">
+    <div className="flex justify-evenly items-center my-8">
       <div>
         <Image
           src="/logo.jpg"
@@ -80,7 +80,7 @@ export default function Register() {
                 type="text"
                 name="email"
                 placeholder="Email or Phone number"
-                className="border-b border-black w-full"
+                className="border-b border-black w-full outline-none"
                 value={data.email}
                 onChange={handleChange}
               />
@@ -91,7 +91,7 @@ export default function Register() {
                 type="text"
                 placeholder="Name"
                 name="username"
-                className="border-b border-black w-full"
+                className="border-b border-black w-full outline-none"
                 value={data.username}
                 onChange={handleChange}
               />
@@ -102,7 +102,7 @@ export default function Register() {
                 type="password"
                 placeholder="Password"
                 name="password"
-                className="border-b border-black w-full"
+                className="border-b border-black w-full outline-none"
                 value={data.password}
                 onChange={handleChange}
               />

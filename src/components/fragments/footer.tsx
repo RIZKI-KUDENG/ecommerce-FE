@@ -1,8 +1,8 @@
 import Image from "next/image";
 export default function Footer() {
     return (
-        <div className="bg-black text-white py-5">
-                <div className="flex justify-around">
+        <div className="bg-black text-white h-78">
+                <div className="flex justify-around p-4">
                   <div>
                     <h1 className="text-xl font-bold">Exclusive</h1>
                     <ul className="text-sm text-slate-50 py-3 flex flex-col gap-2">
