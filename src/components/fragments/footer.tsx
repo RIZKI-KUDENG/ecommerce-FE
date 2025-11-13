@@ -1,7 +1,7 @@
 import Image from "next/image";
 export default function Footer() {
     return (
-        <div className="bg-black text-white h-78">
+        <div className="bg-black text-white h-100">
                 <div className="flex justify-around p-4">
                   <div>
                     <h1 className="text-xl font-bold">Exclusive</h1>

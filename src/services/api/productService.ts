@@ -1,31 +1,22 @@
 import { apiClient } from "@/lib/axios";
-
-export const getProducts = async (params?: {
-    category?: string;
-    page?: number;
-    sortBy?: string;
-    search?: string;
-}) => {
-    const response = await apiClient.get("/products", { params });
-    return response.data;
+export interface ProductQueryParams {
+  category?: string | number;
+  search?: string;
+  sortBy?: string;
+  order?: "ASC" | "DESC";
+  page?: number;
+  limit?: number;
 }
 
-export const getProductById = async (id: string) => {
-    const response = await apiClient.get(`/products/${id}`);
+export const fetchProducts = async (params: ProductQueryParams = {}) => {
+    const response = await apiClient.get("/products", {params: params});
     return response.data;
-}
-
+};
 export const createProduct = async (data: any) => {
     const response = await apiClient.post("/products", data);
     return response.data;
 }
-
-export const updateProduct = async (id: string, data: any) => {
-    const response = await apiClient.put(`/products/${id}`, data);
-    return response.data;
-}
-
-export const deleteProduct = async (id: string) => {
-    const response = await apiClient.delete(`/products/${id}`);
+export const addCategory = async (data: any) => {
+    const response = await apiClient.post("/categories", data);
     return response.data;
 }
