@@ -1,13 +1,10 @@
 "use client";
 import Image from "next/image";
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useAuth } from "@/context/AuthContext";
 export default function Navbar({ pathname }: { pathname: string }) {
-  const [isloggedIn, setIsloggedIn] = useState(false);
-  useEffect(() => {
-    const token = localStorage.getItem("token");
-    setIsloggedIn(!!token);
-  }, []);
+  const { isLoggedIn } = useAuth();
+  
   return (
     <div className="border-b">
       <nav className="flex justify-around items-center h-17">
@@ -48,8 +45,8 @@ export default function Navbar({ pathname }: { pathname: string }) {
             />
           </div>
           <div className="flex items-center gap-3">
-            {isloggedIn &&
-              ["/favorit.png", "/cart.png", "/user.png"].map((item, index) => (
+            {isLoggedIn &&
+              ["/favorit.png", "/cart.png"].map((item, index) => (
                 <Image
                   src={item}
                   alt={item}
@@ -59,6 +56,7 @@ export default function Navbar({ pathname }: { pathname: string }) {
                   key={index}
                 />
               ))}
+              
           </div>
         </div>
       </nav>

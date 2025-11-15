@@ -15,17 +15,13 @@ import {
   SelectItem,
 } from "@/components/ui/select";
 
-import { useState, useEffect } from "react";
-import {
-  fetchProducts,
-  fetchVariantById,
-  createStock,
-} from "@/services/api/productService";
+import { useState } from "react";
+import { fetchVariantById, createStock } from "@/services/api/productService";
 
 import { z } from "zod";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-
+import { useProductSearch } from "@/hooks/useProductSearch";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 
@@ -59,8 +55,11 @@ const stockSchema = z
 type StockForm = z.infer<typeof stockSchema>;
 
 export default function AddStock() {
+  const { search, setSearch, products, setProducts } = useProductSearch();
+  const [variants, setVariants] = useState<any[]>([]);
+
   // -----------------------------------------------------
-  // RHF
+  // FORM HANDLER
   // -----------------------------------------------------
   const {
     register,
@@ -80,42 +79,6 @@ export default function AddStock() {
       image: "",
     },
   });
-
-  // -----------------------------------------------------
-  // STATES
-  // -----------------------------------------------------
-  const [search, setSearch] = useState("");
-  const [products, setProducts] = useState<any[]>([]);
-  const [variants, setVariants] = useState<any[]>([]);
-  const [debounce, setDebounce] = useState("");
-
-  // -----------------------------------------------------
-  // DEBOUNCE SEARCH
-  // -----------------------------------------------------
-  useEffect(() => {
-    const t = setTimeout(() => setDebounce(search), 400);
-    return () => clearTimeout(t);
-  }, [search]);
-
-  // -----------------------------------------------------
-  // FETCH PRODUCTS
-  // -----------------------------------------------------
-  useEffect(() => {
-    if (!debounce.trim()) {
-      setProducts([]);
-      return;
-    }
-    getProducts(debounce);
-  }, [debounce]);
-
-  const getProducts = async (keyword: string) => {
-    try {
-      const res = await fetchProducts({ search: keyword });
-      setProducts(res.data);
-    } catch (err) {
-      console.error(err);
-    }
-  };
 
   // -----------------------------------------------------
   // SELECT PRODUCT
@@ -163,10 +126,6 @@ export default function AddStock() {
       console.error(error);
     }
   };
-
-  // -----------------------------------------------------
-  // UI
-  // -----------------------------------------------------
   return (
     <div>
       <h1 className="text-3xl text-center mb-6">Add Stock</h1>

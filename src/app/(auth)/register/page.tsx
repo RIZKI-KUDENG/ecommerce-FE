@@ -9,26 +9,28 @@ import {
 import { Button } from "@/components/ui/button";
 import Image from "next/image";
 import Link from "next/link";
-import { useState } from "react";
-import { register } from "@/services/api/authService";
+import { register as registerAPI } from "@/services/api/authService";
+import {z} from "zod";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useForm } from "react-hook-form";
+
+const registerSchema = z.object({
+  username: z.string().min(1, { message: "Username harus diisi" }),
+  email: z.string().min(1, { message: "Email/Nomor Handphone harus diisi" }),
+  password: z.string().min(1, { message: "Password harus diisi" }),
+});
+
+type FormData = z.infer<typeof registerSchema>;
 
 export default function Register() {
-  const [data, setData] = useState({
-    username: "",
-    email: "",
-    phone: "",
-    password: "",
-  });
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    if (!data.username || !data.password) {
-      alert("Username dan password wajib diisi");
-      return;
-    }
-    if (!data.email) {
-      alert("Masukkan email atau nomor HP");
-      return;
-    }
+
+const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm<FormData>({ resolver: zodResolver(registerSchema) });
+
+  const onSubmit = async (data: FormData) => {
     const isEmail = data.email.includes("@");
     const payload = {
       username: data.username,
@@ -37,7 +39,7 @@ export default function Register() {
       password: data.password,
     };
     try {
-      const res = await register(
+      const res = await registerAPI(
         payload.username,
         payload.email,
         payload.phone,
@@ -45,16 +47,9 @@ export default function Register() {
       );
       console.log(res);
       alert("Register Berhasil");
-    } catch (err: any) {
-      console.error(err);
-      alert(err.response.data.message || "Terjadi kesalahan");
+    } catch (error) {
+      console.error(error);
     }
-  };
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setData({
-      ...data,
-      [e.target.name]: e.target.value,
-    });
   };
   return (
     <div className="flex justify-evenly items-center my-8">
@@ -67,7 +62,7 @@ export default function Register() {
           className="w-96 h-96"
         ></Image>
       </div>
-      <form action="" className="p-3" onSubmit={handleSubmit}>
+      <form action="" className="p-3" onSubmit={handleSubmit(onSubmit)}>
         <FieldSet>
           <h1 className="text-3xl font-bold">Log in to Exclusive</h1>
           <FieldDescription className="text-md">
@@ -78,11 +73,9 @@ export default function Register() {
               <FieldLabel htmlFor="email">Email</FieldLabel>
               <input
                 type="text"
-                name="email"
                 placeholder="Email or Phone number"
                 className="border-b border-black w-full outline-none"
-                value={data.email}
-                onChange={handleChange}
+                {...register("email")}
               />
             </Field>
             <Field>
@@ -90,10 +83,8 @@ export default function Register() {
               <input
                 type="text"
                 placeholder="Name"
-                name="username"
                 className="border-b border-black w-full outline-none"
-                value={data.username}
-                onChange={handleChange}
+                {...register("username")}
               />
             </Field>
             <Field>
@@ -101,10 +92,8 @@ export default function Register() {
               <input
                 type="password"
                 placeholder="Password"
-                name="password"
                 className="border-b border-black w-full outline-none"
-                value={data.password}
-                onChange={handleChange}
+                {...register("password")}
               />
             </Field>
           </FieldGroup>

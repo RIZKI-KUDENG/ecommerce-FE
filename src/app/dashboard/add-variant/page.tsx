@@ -8,12 +8,13 @@ import {
   FieldError,
 } from "@/components/ui/field";
 import { Button } from "@/components/ui/button";
-import { fetchProducts, createVariant } from "@/services/api/productService";
-import React, { useEffect, useState } from "react";
+import { createVariant } from "@/services/api/productService";
+import { useState } from "react";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { Input } from "@/components/ui/input";
+import { useProductSearch } from "@/hooks/useProductSearch";
 
 const variantSchema = z.object({
   productId: z.string().min(1, { message: "Produk harus dipilih" }),
@@ -24,6 +25,8 @@ const variantSchema = z.object({
 type FormData = z.infer<typeof variantSchema>;
 
 export default function AddVariant() {
+  const { search, setSearch, products, setProducts } = useProductSearch();
+  const [showDropdown, setShowDropdown] = useState(false);
   // -----------------------------
   // FORM HANDLER
   // -----------------------------
@@ -40,46 +43,6 @@ export default function AddVariant() {
       price: "",
     },
   });
-
-  // -----------------------------
-  // STATES
-  // -----------------------------
-  const [search, setSearch] = useState("");
-  const [products, setProducts] = useState([]);
-  const [debounceValue, setDebounceValue] = useState("");
-  const [showDropdown, setShowDropdown] = useState(false);
-
-  // -----------------------------
-  // DEBOUNCE LOGIC
-  // -----------------------------
-  useEffect(() => {
-    const handler = setTimeout(() => {
-      setDebounceValue(search);
-    }, 500);
-
-    return () => clearTimeout(handler);
-  }, [search]);
-
-  // -----------------------------
-  // FETCH PRODUCTS
-  // -----------------------------
-  useEffect(() => {
-    if (!debounceValue.trim()) {
-      setProducts([]);
-      return;
-    }
-    getProducts(debounceValue);
-  }, [debounceValue]);
-
-  const getProducts = async (keyword: string) => {
-    try {
-      const response = await fetchProducts({ search: keyword });
-      setProducts(response.data);
-    } catch (error) {
-      console.error(error);
-    }
-  };
-
   // -----------------------------
   // HANDLERS
   // -----------------------------
@@ -100,9 +63,6 @@ export default function AddVariant() {
     console.log("Payload terkirim:", payload);
     await createVariant(payload);
   };
-  // -----------------------------
-  // UI
-  // -----------------------------
   return (
     <div>
       <div className="text-center">
