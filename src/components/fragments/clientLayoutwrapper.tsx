@@ -6,7 +6,7 @@ import Footer from "./footer"
 
 export default function ClientLayoutWrapper({ children } : { children: React.ReactNode }) {
     const pathname = usePathname();
-    const hiddenPath = ["/dashboard"]
+    const hiddenPath = ["/dashboard", "/dashboard/add-product", "/dashboard/add-variant", "/dashboard/add-stock"];
     const shouldHide = hiddenPath.some((path) => path === pathname);
     return (
         <>

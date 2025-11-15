@@ -27,8 +27,6 @@ export function AppSidebar() {
                 <SidebarMenuItem key={item.name}>
                   <Link
                     href={item.href}
-                    passHref
-                    legacyBehavior
                   >
                     <SidebarMenuButton>{item.name}</SidebarMenuButton>
                   </Link>

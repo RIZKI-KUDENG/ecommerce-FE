@@ -1,4 +1,5 @@
 import { apiClient } from "@/lib/axios";
+import { Products } from "@/types/products";
 export interface ProductQueryParams {
   category?: string | number;
   search?: string;
@@ -12,7 +13,7 @@ export const fetchProducts = async (params: ProductQueryParams = {}) => {
     const response = await apiClient.get("/products", {params: params});
     return response.data;
 };
-export const createProduct = async (data: any) => {
+export const createProduct = async (data: Products) => {
     const response = await apiClient.post("/products", data);
     return response.data;
 }

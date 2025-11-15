@@ -1,11 +1,46 @@
 "use client";
 
-import { FieldSet, FieldGroup, Field, FieldLabel } from "@/components/ui/field";
+import {
+  FieldSet,
+  FieldGroup,
+  Field,
+  FieldLabel,
+  FieldError,
+} from "@/components/ui/field";
 import { Button } from "@/components/ui/button";
 import { fetchProducts, createVariant } from "@/services/api/productService";
 import React, { useEffect, useState } from "react";
+import { z } from "zod";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useForm } from "react-hook-form";
+import { Input } from "@/components/ui/input";
+
+const variantSchema = z.object({
+  productId: z.string().min(1, { message: "Produk harus dipilih" }),
+  name: z.string().min(3, { message: "Variant minimal 3 karakter" }),
+  price: z.string().min(1, { message: "Harga harus diisi" }),
+});
+
+type FormData = z.infer<typeof variantSchema>;
 
 export default function AddVariant() {
+  // -----------------------------
+  // FORM HANDLER
+  // -----------------------------
+  const {
+    register,
+    handleSubmit,
+    setValue,
+    formState: { errors },
+  } = useForm<FormData>({
+    resolver: zodResolver(variantSchema),
+    defaultValues: {
+      productId: "",
+      name: "",
+      price: "",
+    },
+  });
+
   // -----------------------------
   // STATES
   // -----------------------------
@@ -13,12 +48,6 @@ export default function AddVariant() {
   const [products, setProducts] = useState([]);
   const [debounceValue, setDebounceValue] = useState("");
   const [showDropdown, setShowDropdown] = useState(false);
-
-  const [formData, setFormData] = useState({
-    productId: "",
-    name: "",
-    price: "",
-  });
 
   // -----------------------------
   // DEBOUNCE LOGIC
@@ -54,43 +83,23 @@ export default function AddVariant() {
   // -----------------------------
   // HANDLERS
   // -----------------------------
-  const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setSearch(e.target.value);
-    setShowDropdown(true);
-  };
 
   const handleSelectProduct = (product: any) => {
     setSearch(product.name);
     setShowDropdown(false);
     setProducts([]);
-
-    // SIMPAN ID PRODUK DI FORM DATA
-    setFormData((prev) => ({
-      ...prev,
-      productId: product.id,
-    }));
+    setValue("productId", product.id.toString());
   };
+  const onSubmit = async (data: FormData) => {
+    const payload = {
+      ...data,
+      price: Number(data.price),
+      productId: Number(data.productId),
+    };
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target;
-
-    setFormData((prev) => ({
-      ...prev,
-      [name]: value,
-    }));
+    console.log("Payload terkirim:", payload);
+    await createVariant(payload);
   };
-
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-
-    try {
-      const res = await createVariant(formData);
-      console.log("Variant Created:", res);
-    } catch (err) {
-      console.error(err);
-    }
-  };
-
   // -----------------------------
   // UI
   // -----------------------------
@@ -101,22 +110,23 @@ export default function AddVariant() {
       </div>
 
       <div className="flex flex-col items-center mt-3 ">
-        <form className="w-full max-w-3xl" onSubmit={handleSubmit}>
+        <form className="w-full max-w-3xl" onSubmit={handleSubmit(onSubmit)}>
           <FieldSet>
             <FieldGroup className="grid grid-cols-1 gap-6">
-
               {/* SEARCH PRODUCT */}
               <Field className="">
                 <FieldLabel>Search Product Name</FieldLabel>
 
-                <input
+                <Input
                   onFocus={() => setShowDropdown(true)}
                   type="text"
                   value={search}
-                  onChange={handleSearch}
+                  onChange={(e) => setSearch(e.target.value)}
                   className="border border-black py-3 px-3 rounded-xl w-full"
                 />
-
+                {errors.productId && (
+                  <FieldError>{errors.productId.message}</FieldError>
+                )}
                 {showDropdown && products.length > 0 && (
                   <ul className=" bg-white border rounded-lg shadow-lg w-full">
                     {products.map((product: any) => (
@@ -135,34 +145,32 @@ export default function AddVariant() {
               {/* VARIANT NAME */}
               <Field>
                 <FieldLabel>Variant Name</FieldLabel>
-                <input
+                <Input
                   type="text"
-                  name="name"
                   className="border border-black py-3 px-3 rounded-xl"
-                  onChange={handleChange}
-                  value={formData.name}
+                  {...register("name")}
                 />
+                {errors.name && <FieldError>{errors.name.message}</FieldError>}
               </Field>
 
               {/* VARIANT PRICE */}
               <Field>
                 <FieldLabel>Variant Price</FieldLabel>
-                <input
-                  type="number"
-                  name="price"
+                <Input
+                  type="text"
                   className="border border-black py-3 px-3 rounded-xl"
-                  onChange={handleChange}
-                  value={formData.price}
+                  {...register("price")}
                 />
+                {errors.price && (
+                  <FieldError>{errors.price.message}</FieldError>
+                )}
               </Field>
-
             </FieldGroup>
           </FieldSet>
 
           <div className="flex justify-center mt-7">
             <Button type="submit">Submit</Button>
           </div>
-
         </form>
       </div>
     </div>
