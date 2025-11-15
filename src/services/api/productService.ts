@@ -20,3 +20,15 @@ export const addCategory = async (data: any) => {
     const response = await apiClient.post("/categories", data);
     return response.data;
 }
+export const createVariant = async (data: any) => {
+    const response = await apiClient.post("/variants", data);
+    return response.data;
+}
+export const fetchVariantById = async (id: any) => {
+    const response = await apiClient.get(`/variants/${id}`);
+    return response.data;
+}
+export const createStock = async (data: any) => {
+    const response = await apiClient.post("/stocks", data);
+    return response.data;
+}

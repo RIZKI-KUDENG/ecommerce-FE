@@ -1,30 +1,46 @@
 "use client";
+
 import { FieldSet, FieldGroup, Field, FieldLabel } from "@/components/ui/field";
-import {
-  Select,
-  SelectContent,
-  SelectGroup,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-  SelectLabel,
-} from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
-import { fetchProducts } from "@/services/api/productService";
-import React, { use, useEffect, useState } from "react";
+import { fetchProducts, createVariant } from "@/services/api/productService";
+import React, { useEffect, useState } from "react";
 
 export default function AddVariant() {
+  // -----------------------------
+  // STATES
+  // -----------------------------
   const [search, setSearch] = useState("");
   const [products, setProducts] = useState([]);
-  const [selectedProduct, setSelectedProduct] = useState<any>(null);
-  const [showDropdown, setShowDropdown] = useState(false);
   const [debounceValue, setDebounceValue] = useState("");
-  const handleSelectedProduct = (product: any) => {
-    setSelectedProduct(product);
-    setSearch(product.name);
-    setShowDropdown(false);
-    setProducts([]);
-  };
+  const [showDropdown, setShowDropdown] = useState(false);
+
+  const [formData, setFormData] = useState({
+    productId: "",
+    name: "",
+    price: "",
+  });
+
+  // -----------------------------
+  // DEBOUNCE LOGIC
+  // -----------------------------
+  useEffect(() => {
+    const handler = setTimeout(() => {
+      setDebounceValue(search);
+    }, 500);
+
+    return () => clearTimeout(handler);
+  }, [search]);
+
+  // -----------------------------
+  // FETCH PRODUCTS
+  // -----------------------------
+  useEffect(() => {
+    if (!debounceValue.trim()) {
+      setProducts([]);
+      return;
+    }
+    getProducts(debounceValue);
+  }, [debounceValue]);
 
   const getProducts = async (keyword: string) => {
     try {
@@ -34,48 +50,79 @@ export default function AddVariant() {
       console.error(error);
     }
   };
-  useEffect(() => {
-    const handler = setTimeout(() => {
-      setDebounceValue(search);
-    }, 500);
-    return () => clearTimeout(handler);
-  }, [search]);
-  useEffect(() => {
-    if (!debounceValue.trim()) {
-      setProducts([]);
-      return;
-    }
-    getProducts(debounceValue);
-  }, [debounceValue]);
+
+  // -----------------------------
+  // HANDLERS
+  // -----------------------------
   const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
     setSearch(e.target.value);
+    setShowDropdown(true);
   };
+
+  const handleSelectProduct = (product: any) => {
+    setSearch(product.name);
+    setShowDropdown(false);
+    setProducts([]);
+
+    // SIMPAN ID PRODUK DI FORM DATA
+    setFormData((prev) => ({
+      ...prev,
+      productId: product.id,
+    }));
+  };
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+
+    setFormData((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
+  };
+
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+
+    try {
+      const res = await createVariant(formData);
+      console.log("Variant Created:", res);
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  // -----------------------------
+  // UI
+  // -----------------------------
   return (
     <div>
       <div className="text-center">
         <h1 className="text-3xl">Add Variant</h1>
       </div>
+
       <div className="flex flex-col items-center mt-3 ">
-        <form action="" className="w-full max-w-3xl">
+        <form className="w-full max-w-3xl" onSubmit={handleSubmit}>
           <FieldSet>
-            <FieldGroup className="grid grid-cols-2 gap-6">
-              <Field>
+            <FieldGroup className="grid grid-cols-1 gap-6">
+
+              {/* SEARCH PRODUCT */}
+              <Field className="">
                 <FieldLabel>Search Product Name</FieldLabel>
+
                 <input
                   onFocus={() => setShowDropdown(true)}
                   type="text"
-                  name="products"
-                  id="name"
                   value={search}
                   onChange={handleSearch}
-                  className="border  border-black py-3 px-3 rounded-xl"
+                  className="border border-black py-3 px-3 rounded-xl w-full"
                 />
+
                 {showDropdown && products.length > 0 && (
-                  <ul className="border rounded-lg bg-white shadow-lg overflow-auto ">
+                  <ul className=" bg-white border rounded-lg shadow-lg w-full">
                     {products.map((product: any) => (
                       <li
                         key={product.id}
-                        onClick={() => handleSelectedProduct(product)}
+                        onClick={() => handleSelectProduct(product)}
                         className="px-3 py-2 cursor-pointer hover:bg-gray-100"
                       >
                         {product.name}
@@ -84,62 +131,38 @@ export default function AddVariant() {
                   </ul>
                 )}
               </Field>
+
+              {/* VARIANT NAME */}
               <Field>
-                <FieldLabel>Product Description</FieldLabel>
+                <FieldLabel>Variant Name</FieldLabel>
                 <input
                   type="text"
-                  name="description"
-                  id="description"
-                  className="h-30 border border-black py-3 px-3 rounded-xl"
+                  name="name"
+                  className="border border-black py-3 px-3 rounded-xl"
+                  onChange={handleChange}
+                  value={formData.name}
                 />
               </Field>
+
+              {/* VARIANT PRICE */}
               <Field>
-                <FieldLabel>Product Price</FieldLabel>
+                <FieldLabel>Variant Price</FieldLabel>
                 <input
                   type="number"
-                  name="basePrice"
-                  id="basePrice"
-                  className="border  border-black py-3 px-3 rounded-xl"
-                />
-              </Field>
-              <Field>
-                <FieldLabel>Product Image</FieldLabel>
-                <input
-                  type="text"
-                  name="image"
-                  id="image"
+                  name="price"
                   className="border border-black py-3 px-3 rounded-xl"
+                  onChange={handleChange}
+                  value={formData.price}
                 />
               </Field>
-              <Field>
-                <FieldLabel>Product Brand</FieldLabel>
-                <input
-                  type="text"
-                  name="brand"
-                  id="brand"
-                  className="border border-black py-3 px-3 rounded-xl"
-                />
-              </Field>
+
             </FieldGroup>
           </FieldSet>
-          <div className="flex flex-col justify-center items-center mt-7 gap-5">
-            <Select>
-              <SelectTrigger>
-                <SelectValue placeholder="Select a category" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectGroup>
-                  <SelectLabel>Categories</SelectLabel>
-                  <SelectItem value="1">Smartphone</SelectItem>
-                  <SelectItem value="2">Laptop</SelectItem>
-                  <SelectItem value="3">Smartwatch</SelectItem>
-                </SelectGroup>
-              </SelectContent>
-            </Select>
-            <Button className="" type="submit">
-              Submit
-            </Button>
+
+          <div className="flex justify-center mt-7">
+            <Button type="submit">Submit</Button>
           </div>
+
         </form>
       </div>
     </div>

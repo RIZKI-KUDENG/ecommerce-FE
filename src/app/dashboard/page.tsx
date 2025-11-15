@@ -1,6 +1,7 @@
 "use client";
 import AddProduct from "./addProduct";
 import AddVariant from "./addVariant";
+import AddStock from "./addStock";
 export default function DashboardPage() {
 
   return (
@@ -99,6 +100,7 @@ export default function DashboardPage() {
       </div> */}
       <AddProduct />
       <AddVariant />
+      <AddStock />
     </div>
   );
 }
