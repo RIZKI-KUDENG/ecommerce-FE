@@ -8,17 +8,12 @@ import {
   SidebarMenuItem,
   SidebarMenuButton,
 } from "@/components/ui/sidebar";
+import Link from "next/link";
 const items = [
-  {
-    name: "Add Product",
-  },
-  {
-    name: "Add Variant",
-  },
-  {
-    name: "Add Stock",
-  }
-]
+  { name: "Add Product", href: "/dashboard/add-product" },
+  { name: "Add Variant", href: "/dashboard/add-variant" },
+  { name: "Add Stock", href: "/dashboard/add-stock" },
+];
 
 export function AppSidebar() {
   return (
@@ -28,13 +23,17 @@ export function AppSidebar() {
           <SidebarGroupLabel>Application</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
-              {
-                items.map((item) => (
-                  <SidebarMenuItem key={item.name}>
+              {items.map((item) => (
+                <SidebarMenuItem key={item.name}>
+                  <Link
+                    href={item.href}
+                    passHref
+                    legacyBehavior
+                  >
                     <SidebarMenuButton>{item.name}</SidebarMenuButton>
-                  </SidebarMenuItem>
-                ))
-              }
+                  </Link>
+                </SidebarMenuItem>
+              ))}
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
