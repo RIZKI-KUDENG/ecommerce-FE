@@ -13,6 +13,12 @@ export const fetchProducts = async (params: ProductQueryParams = {}) => {
     const response = await apiClient.get("/products", {params: params});
     return response.data;
 };
+
+export const fetchProductById = async (id: any) => {
+    const response = await apiClient.get(`/products/${id}`);
+    return response.data;
+}
+
 export const createProduct = async (data: Products) => {
     const response = await apiClient.post("/products", data);
     return response.data;
